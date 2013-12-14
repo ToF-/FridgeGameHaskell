@@ -1,13 +1,15 @@
 module Main
 where
 import Control.Monad (msum)
+import Happstack.Lite
 import Data.Text.Lazy (unpack)
-import Happstack.Server (nullConf, simpleHTTP, toMessage, ok, lookText, ServerPart, Response, dir, toResponse)
+-- import Happstack.Server (nullConf, simpleHTTP, toMessage, ok, lookText, ServerPart, Response, dir, toResponse)
 import qualified Text.Blaze.Html5 as H
 
 server = msum [dir "serveparam" $ serveParam 
               ,dir "servepage"  $ servePage
-              ,dir "compute"    $ serveComputation]
+              ,dir "compute"    $ serveComputation
+              ,serveFiles]
 
 serveParam = do param <- lookText "param" 
                 ok $ toResponse param
@@ -23,8 +25,9 @@ servePage = ok $ toResponse $
      H.body $ do
        (H.toHtml "simple body")
 
+serveFiles = serveDirectory EnableBrowsing ["index.html"] "."
 
 main :: IO ()
-main = simpleHTTP nullConf server
+main = serve Nothing server
 
 

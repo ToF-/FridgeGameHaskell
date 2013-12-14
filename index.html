@@ -1,0 +1,21 @@
+<html>
+    <head>
+    </head>
+    <body>
+    param: <input type="text" id="param" value="100"><br>
+    result: <div id="result"> </div> 
+    </body>
+    <script src="jquery-2.0.3.min.js"> </script>
+    
+    <script>
+        $(document).ready(function() {
+            compute = function() {
+                param = $("#param").val();
+                $.getJSON("/compute?param="+param, function(data) {
+                            $("#result").html(data);});
+                setTimeout(compute, 1000);
+            };
+            compute();
+            });
+    </script>
+</html>
