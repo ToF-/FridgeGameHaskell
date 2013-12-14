@@ -1,6 +1,9 @@
 C=ghc
 F=--make -threaded 
 
+specs: Specs.hs
+	$(C) --make Specs.hs -o bin/specs
+	bin/specs
 
 server: SimpleServer.hs
 	$(C) $(F) SimpleServer.hs -o bin/server
