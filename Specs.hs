@@ -45,5 +45,9 @@ main = hspec $ do
             roomInfo (updateRoom newServer) `shouldBe`(14.0, 100)
 
         it "should be stoppable" $ do
-            status (stop (start newServer)) `shouldBe` Stopped
+            status (stop (start newServer)) `shouldBe` Idle
+
+        it "should be able to reinitialize" $ do
+            roomInfo (reinit (updateRoom newServer)) `shouldBe` (15.0, 100)
+            status (reinit (start newServer)) `shouldBe` Idle
     

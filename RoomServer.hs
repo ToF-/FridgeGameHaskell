@@ -24,4 +24,7 @@ updateRoom :: RoomServer -> RoomServer
 updateRoom s = let r = room s in s { room = update r }
 
 stop :: RoomServer -> RoomServer
-stop s = s { status = Stopped }
+stop s = s { status = Idle }
+
+reinit :: RoomServer -> RoomServer
+reinit _ = newServer
