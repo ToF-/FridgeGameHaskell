@@ -1,10 +1,10 @@
 module RefrigeratedRoom
 where
 
-data RefrigeratedRoom = Room
+data RefrigeratedRoom = Room { temperature :: Double, position :: Int }
 
-newRoom :: RefrigeratedRoom
-newRoom = Room
+newRoom :: RefrigeratedRoom 
+newRoom = Room 15.0 100
 
-temperature :: RefrigeratedRoom -> Double
-temperature _ = 15.0
+update :: RefrigeratedRoom -> RefrigeratedRoom
+update (Room t p) = Room (t-1) p
