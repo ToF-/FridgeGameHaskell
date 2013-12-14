@@ -1,5 +1,6 @@
 import Test.Hspec
 import RefrigeratedRoom
+import RoomServer
 
 apply :: Int -> (a -> a) -> a -> a
 apply n f i = (iterate f i) !! n
@@ -25,3 +26,24 @@ main = hspec $ do
 
         it "should have its temperature decreasing differently according to position" $ do
             temperature (update (newRoom { position = 50 })) `shouldBe` 12.333333333333334
+
+    describe "a refrigerated room server\n" $ do
+
+        it "should have a status request" $ do
+            status newServer `shouldBe` Idle
+
+        it "should be runnable" $ do
+            status (start newServer) `shouldBe` Running
+
+        it "should provide information about the room" $ do
+            roomInfo newServer `shouldBe` (15.0, 100)
+
+        it "should have a command to set position" $ do
+            roomInfo (setPosition newServer 50) `shouldBe` (15.0, 50)
+
+        it "should have a command to update its room" $ do
+            roomInfo (updateRoom newServer) `shouldBe`(14.0, 100)
+
+        it "should be stoppable" $ do
+            status (stop (start newServer)) `shouldBe` Stopped
+    
