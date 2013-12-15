@@ -10,9 +10,10 @@ printInstructions = putStrLn $ unlines
      ,"START     : start the simulator"
      ,"POS   <n> : set the position [0..100] for the command"
      ,"<empty>   : let the simulator unchanged"
-     ,"STOP      : stop the simulator and quit"
+     ,"STOP      : stop the simulator"
      ,"REINIT    : put the simulator back to initial state"
-     ,"HELP      : print these instructions"]
+     ,"HELP      : print these instructions"
+     ,"QUIT      : exit the simulator"]
 
 printSimulation :: MVar Simulation -> IO ()
 printSimulation v = do s <- readMVar v
@@ -28,8 +29,16 @@ updateSimulation v =
 
 startSimulation :: MVar Simulation -> IO ()
 startSimulation v = 
-    do s <- takeMVar v
+    do putStrLn "STARTING THE SIMULATION"
+       s <- takeMVar v
        let s' = start s
+       putMVar v s'
+
+stopSimulation :: MVar Simulation -> IO ()
+stopSimulation v = 
+    do putStrLn "STOPPING THE SIMULATION"
+       s <- takeMVar v
+       let s' = stop s
        putMVar v s'
 
 reinitSimulation :: MVar Simulation -> IO ()
@@ -62,8 +71,9 @@ readEvalPrintLoop v =
        e <- getLine
        let (continue, action) = case (words e) of
             ["HELP"]  -> (True,  printInstructions)
-            ["STOP"]  -> (False, putStrLn "STOPPING THE SIMULATION")
+            ["QUIT"]  -> (False, putStrLn "QUITTING THE SIMULATION")
             ["START"] -> (True,  startSimulation v)
+            ["STOP"]  -> (True,  stopSimulation v)
             ["REINIT"]-> (True,  reinitSimulation v)
             ["POS",n] -> (True,  setPositionSimulation n v)
             []        -> (True,  return ())
