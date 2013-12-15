@@ -6,7 +6,7 @@ import Report
 
 process :: Int -> Simulation -> IO ()
 process 0 s = do putStrLn "SIMULATION COMPLETE"
-                 putStrLn (show (report s))
+                 putStrLn (pretty $ report s)
 
 process n s = do putStrLn $ (show (position (room s))) ++ " " ++ (show (temperature (room s)))
                  case updateRoom s of

@@ -66,13 +66,19 @@ main = hspec $ do
 
     describe "a report\n" $ do
 
+        let simulation = fromRight $ updateRoom $ start newSimulation
+            simulation'= fromRight $ updateRoom $ fromRight $ setPosition simulation 50
+
         it "should be empty for a new simulation" $ do 
             report newSimulation `shouldBe` []
         
         it "should record a room state" $ do
-            report (fromRight (updateRoom (start newSimulation))) `shouldBe` [(1,100,15.0)]
+            report simulation `shouldBe` [(1,100,15.0)]
 
         it "should record successive room states" $ do
-            report server' `shouldBe` [(1,100,15.0),(2,50,14)]
-            where server = (fromRight (updateRoom (start newSimulation)))
-                  server'= (fromRight (updateRoom (fromRight (setPosition server 50))))
+            report simulation' `shouldBe` [(1,100,15.0),(2,50,14)]
+
+        it "should pretty print the states" $ do
+            pretty (report simulation') `shouldBe` "1 100 15.0\n2 50 14.0\n"    
+            
+
