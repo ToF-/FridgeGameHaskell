@@ -58,11 +58,11 @@ main = hspec $ do
             status (reinit (start newSimulation)) `shouldBe` Idle
     
         it "should not allow to set position if not running" $ do
-            setPosition newSimulation 50 `shouldBe` Left "SERVER NOT RUNNING"
-            setPosition (stop (start newSimulation)) 50 `shouldBe` Left "SERVER NOT RUNNING"
+            setPosition newSimulation 50 `shouldBe` Left "SIMULATION NOT RUNNING"
+            setPosition (stop (start newSimulation)) 50 `shouldBe` Left "SIMULATION NOT RUNNING"
 
         it "should not allow to update room if not running" $ do
-            updateRoom newSimulation `shouldBe` Left "SERVER NOT RUNNING"
+            updateRoom newSimulation `shouldBe` Left "SIMULATION NOT RUNNING"
 
     describe "a report\n" $ do
         

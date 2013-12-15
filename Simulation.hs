@@ -2,7 +2,7 @@ module Simulation
 where
 import RefrigeratedRoom
 
-notRunning = "SERVER NOT RUNNING"
+notRunning = "SIMULATION NOT RUNNING"
 
 data Simulation = Simulation {status :: Status, room :: RefrigeratedRoom}
     deriving (Eq, Show)
