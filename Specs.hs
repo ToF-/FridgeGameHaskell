@@ -1,6 +1,6 @@
 import Test.Hspec
 import RefrigeratedRoom
-import RoomServer
+import Simulation
 import Report
 
 fromRight :: Either a b -> b
@@ -32,46 +32,46 @@ main = hspec $ do
         it "should have its temperature decreasing differently according to position" $ do
             temperature (update (newRoom { position = 50 })) `shouldBe` 12.333333333333334
 
-    describe "a refrigerated room server\n" $ do
+    describe "a refrigerated room simulation\n" $ do
 
         it "should have a status request" $ do
-            status newServer `shouldBe` Idle
+            status newSimulation `shouldBe` Idle
 
         it "should be runnable" $ do
-            status (start newServer) `shouldBe` Running
+            status (start newSimulation) `shouldBe` Running
 
         it "should provide information about the room" $ do
-            roomInfo newServer `shouldBe` (15.0, 100)
+            roomInfo newSimulation `shouldBe` (15.0, 100)
 
         it "should have a command to set position" $ do
-            roomInfo (fromRight(setPosition (start newServer) 50)) `shouldBe` (15.0, 50)
+            roomInfo (fromRight(setPosition (start newSimulation) 50)) `shouldBe` (15.0, 50)
 
 
         it "should have a command to update its room" $ do
-            roomInfo (fromRight (updateRoom (start newServer))) `shouldBe`(14.0, 100)
+            roomInfo (fromRight (updateRoom (start newSimulation))) `shouldBe`(14.0, 100)
 
         it "should be stoppable" $ do
-            status (stop (start newServer)) `shouldBe` Idle
+            status (stop (start newSimulation)) `shouldBe` Idle
 
         it "should be able to reinitialize" $ do
-            roomInfo (reinit (fromRight (updateRoom (start newServer)))) `shouldBe` (15.0, 100)
-            status (reinit (start newServer)) `shouldBe` Idle
+            roomInfo (reinit (fromRight (updateRoom (start newSimulation)))) `shouldBe` (15.0, 100)
+            status (reinit (start newSimulation)) `shouldBe` Idle
     
         it "should not allow to set position if not running" $ do
-            setPosition newServer 50 `shouldBe` Left "SERVER NOT RUNNING"
-            setPosition (stop (start newServer)) 50 `shouldBe` Left "SERVER NOT RUNNING"
+            setPosition newSimulation 50 `shouldBe` Left "SERVER NOT RUNNING"
+            setPosition (stop (start newSimulation)) 50 `shouldBe` Left "SERVER NOT RUNNING"
 
         it "should not allow to update room if not running" $ do
-            updateRoom newServer `shouldBe` Left "SERVER NOT RUNNING"
+            updateRoom newSimulation `shouldBe` Left "SERVER NOT RUNNING"
 
     describe "a report\n" $ do
         
         it "should record a room state" $ do
-            report (recordState newServer []) `shouldBe` [(1,100,15.0)]
+            report (recordState newSimulation []) `shouldBe` [(1,100,15.0)]
 
         it "should record successive room states" $ do
             report states' `shouldBe` [(1,100,15.0),(2,50,12.333333333333334)]
-            where server = start newServer
+            where server = start newSimulation
                   states = recordState server []
                   server'= (fromRight (updateRoom (fromRight (setPosition server 50))))
                   states'= recordState server' states

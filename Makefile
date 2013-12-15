@@ -1,7 +1,7 @@
 C=ghc
 F=--make -threaded 
 
-specs: Specs.hs RefrigeratedRoom.hs RoomServer.hs Report.hs
+specs: Specs.hs RefrigeratedRoom.hs Simulation.hs Report.hs
 	$(C) --make Specs.hs -o bin/specs
 	bin/specs
 

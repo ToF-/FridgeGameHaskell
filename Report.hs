@@ -1,12 +1,12 @@
 module Report
 where
 import RefrigeratedRoom
-import RoomServer
+import Simulation
 
 type States = [(Position,Temperature)]
 type Report = [(Int, Position, Temperature)]
 
-recordState :: RoomServer -> States -> States
+recordState :: Simulation -> States -> States
 recordState s ss = (position r, temperature r):ss where r = room s
 
 report :: States -> Report

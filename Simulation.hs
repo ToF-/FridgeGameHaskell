@@ -1,34 +1,34 @@
-module RoomServer
+module Simulation
 where
 import RefrigeratedRoom
 
 notRunning = "SERVER NOT RUNNING"
 
-data RoomServer = RoomServer {status :: Status, room :: RefrigeratedRoom}
+data Simulation = Simulation {status :: Status, room :: RefrigeratedRoom}
     deriving (Eq, Show)
 
 data Status = Idle | Running | Stopped
     deriving (Eq, Show)
 
-newServer :: RoomServer
-newServer = RoomServer Idle newRoom
+newSimulation :: Simulation
+newSimulation = Simulation Idle newRoom
 
-start :: RoomServer -> RoomServer 
+start :: Simulation -> Simulation 
 start s = s {status = Running}
 
-roomInfo :: RoomServer -> (Temperature, Position)
+roomInfo :: Simulation -> (Temperature, Position)
 roomInfo s = (temperature (room s), position (room s))
 
-setPosition :: RoomServer -> Position -> Either String RoomServer))))
+setPosition :: Simulation -> Position -> Either String Simulation
 setPosition s _ | status s /= Running = Left notRunning
 setPosition s p = Right s {room = (room s) {position = p}}
 
-updateRoom :: RoomServer -> Either String RoomServer
+updateRoom :: Simulation -> Either String Simulation
 updateRoom s | status s /= Running = Left notRunning 
 updateRoom s = Right s {room = update (room s)}
 
-stop :: RoomServer -> RoomServer
+stop :: Simulation -> Simulation
 stop s = s {status = Idle}
 
-reinit :: RoomServer -> RoomServer
-reinit _ = newServer
+reinit :: Simulation -> Simulation
+reinit _ = newSimulation
