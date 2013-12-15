@@ -13,3 +13,6 @@ timer: SimpleTimerExample.hs
 
 runner: SimpleSimulationRunner.hs
 	$(C) $F SimpleSimulationRunner.hs -o bin/runner
+
+console: TextSimulationRunner.hs RefrigeratedRoom.hs Simulation.hs Report.hs
+	$(C) $F TextSimulationRunner.hs -o bin/console
