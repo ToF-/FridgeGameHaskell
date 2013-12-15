@@ -61,6 +61,7 @@ printReport :: Runner -> Id -> IO ()
 printReport r id =
     do s <- find r id
        putStrLn (pretty (report s))
+       writeFile ("STATS_" ++ id ++ ".txt") (pretty (report s))
 
 delay :: Delay
 delay = sDelay 5
@@ -80,4 +81,6 @@ main = do printInstructions
           repeatedStart t (tickSimulation r "TOF") delay
           readEvalPrintLoop r "TOF"
           printReport r "TOF"
+          
+
         

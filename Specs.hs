@@ -81,7 +81,7 @@ main = hspec $ do
             report simulation' `shouldBe` [(1,100,15.0),(2,50,14)]
 
         it "should pretty print the states" $ do
-            pretty (report simulation') `shouldBe` "1 100 15.0\n2 50 14.0\n"    
+            pretty (report simulation') `shouldBe` "1\t100\t15.0\n2\t50\t14.0\n"    
 
         it "should print the current state" $ do
              showSimulation simulation `shouldBe` "STATUS:Running POSITION:100 TEMPERATURE:14.0"
