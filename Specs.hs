@@ -1,6 +1,7 @@
 import Test.Hspec
 import RefrigeratedRoom
 import RoomServer
+import Report
 
 fromRight :: Either a b -> b
 fromRight (Right b) = b
@@ -62,3 +63,15 @@ main = hspec $ do
 
         it "should not allow to update room if not running" $ do
             updateRoom newServer `shouldBe` Left "SERVER NOT RUNNING"
+
+    describe "a report\n" $ do
+        
+        it "should record a room state" $ do
+            report (recordState newServer []) `shouldBe` [(1,100,15.0)]
+
+        it "should record successive room states" $ do
+            report states' `shouldBe` [(1,100,15.0),(2,50,12.333333333333334)]
+            where server = start newServer
+                  states = recordState server []
+                  server'= (fromRight (updateRoom (fromRight (setPosition server 50))))
+                  states'= recordState server' states

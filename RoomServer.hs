@@ -16,10 +16,10 @@ newServer = RoomServer Idle newRoom
 start :: RoomServer -> RoomServer 
 start s = s {status = Running}
 
-roomInfo :: RoomServer -> (Double, Int)
+roomInfo :: RoomServer -> (Temperature, Position)
 roomInfo s = (temperature (room s), position (room s))
 
-setPosition :: RoomServer -> Int -> Either String RoomServer
+setPosition :: RoomServer -> Position -> Either String RoomServer
 setPosition s _ | status s /= Running = Left notRunning
 setPosition s p = Right s {room = (room s) {position = p}}
 

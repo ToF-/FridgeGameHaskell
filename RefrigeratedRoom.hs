@@ -1,13 +1,16 @@
 module RefrigeratedRoom
 where
 
-data RefrigeratedRoom = Room { temperatures :: [Double], position :: Int }
+type Temperature = Double
+type Position = Int
+
+data RefrigeratedRoom = Room { temperatures :: [Temperature], position :: Position }
     deriving (Show, Eq)
 
-temperature :: RefrigeratedRoom -> Double
+temperature :: RefrigeratedRoom -> Temperature
 temperature = head . temperatures
 
-initialTemperatures :: [Double]
+initialTemperatures :: [Temperature]
 initialTemperatures = take 5 (repeat 15)
 
 newRoom :: RefrigeratedRoom 
