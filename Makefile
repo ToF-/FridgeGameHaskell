@@ -10,3 +10,6 @@ server: SimpleServer.hs
 
 timer: SimpleTimerExample.hs
 	$(C) $(F) SimpleTimerExample.hs -o bin/timer
+
+runner: SimpleSimulationRunner.hs
+	$(C) $F SimpleSimulationRunner.hs -o bin/runner
