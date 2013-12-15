@@ -1,11 +1,15 @@
 module Main
 where
 import Data.Char
-import Control.Concurrent
 import Simulation
 import Report
+import Runner
 import Control.Concurrent.Timer (newTimer, repeatedStart, stopTimer)
 import Control.Concurrent.Suspend.Lifted (Delay, sDelay)
+
+fromRight :: Either a b -> b
+fromRight (Right b) = b
+fromRight _ = error "fromRight applied to a Left value"
 
 printInstructions :: IO ()
 printInstructions = putStrLn $ unlines
@@ -18,90 +22,62 @@ printInstructions = putStrLn $ unlines
      ,"HELP      : print these instructions"
      ,"QUIT      : exit the simulator"]
 
-printSimulation :: MVar Simulation -> IO ()
-printSimulation v = do s <- readMVar v
-                       putStrLn $ showSimulation s
+printSimulation :: Runner -> Id -> IO ()
+printSimulation r id = do s <- find r id
+                          putStrLn $ showSimulation s
 
-updateSimulation :: MVar Simulation -> IO ()
-updateSimulation v = 
-    do s <- takeMVar v
-       let s' = case updateRoom s of
-            Right u -> u
-            Left  _ -> s
-       putMVar v s'
-
-startSimulation :: MVar Simulation -> IO ()
-startSimulation v = 
-    do putStrLn "STARTING THE SIMULATION"
-       s <- takeMVar v
-       let s' = start s
-       putMVar v s'
-
-stopSimulation :: MVar Simulation -> IO ()
-stopSimulation v = 
-    do putStrLn "STOPPING THE SIMULATION"
-       s <- takeMVar v
-       let s' = stop s
-       putMVar v s'
-
-reinitSimulation :: MVar Simulation -> IO ()
-reinitSimulation v =
-    do s <- takeMVar v
-       let s' = newSimulation 
-       putMVar v s'
 
 isInteger :: String -> Bool
 isInteger s = case reads s :: [(Integer, String)] of
   [(_, "")] -> True
   _         -> False
 
-setPositionSimulation :: String ->MVar Simulation -> IO ()
-setPositionSimulation p v = 
+setPosSimulation :: String -> Runner -> Id -> IO ()
+setPosSimulation p r id = 
     case isInteger p of
         False -> do putStrLn ("NOT AN INTEGER:" ++ p)
                     return ()
-        True  -> do s <- takeMVar v
-                    s' <- case setPosition s (read p) of
-                                Left msg -> do putStrLn msg
-                                               return s
-                                Right u  -> return u
-                    putMVar v s'
-      
+        True  -> do setPositionSimulation r id (read p)
 
-readEvalPrintLoop :: MVar Simulation -> IO ()
-readEvalPrintLoop v = 
-    do printSimulation v
+readEvalPrintLoop :: Runner -> Id -> IO ()
+readEvalPrintLoop r id = 
+    do printSimulation r id
        e <- getLine
        let (continue, action) = case (map (map toUpper) (words e)) of
             ["HELP"]  -> (True,  printInstructions)
             ["QUIT"]  -> (False, putStrLn "QUITTING THE SIMULATION")
-            ["START"] -> (True,  startSimulation v)
-            ["STOP"]  -> (True,  stopSimulation v)
-            ["REINIT"]-> (True,  reinitSimulation v)
-            ["POS",n] -> (True,  setPositionSimulation n v)
+            ["START"] -> (True,  startSimulation r id)
+            ["STOP"]  -> (True,  stopSimulation r id)
+            ["REINIT"]-> (True,  reinitSimulation r id)
+            ["POS",n] -> (True,  setPosSimulation n r id)
             []        -> (True,  return ())
             _       -> (True,  putStrLn ("UNKNWON COMMAND:" ++ e))
        action
        case continue of
-        True  -> readEvalPrintLoop v
+        True  -> readEvalPrintLoop r id
         False -> return ()
 
-printReport :: MVar Simulation -> IO ()
-printReport v =
-    do s <- readMVar v 
+printReport :: Runner -> Id -> IO ()
+printReport r id =
+    do s <- find r id
        putStrLn (pretty (report s))
 
 delay :: Delay
-delay = sDelay 60
+delay = sDelay 5
 
-tickSimulation :: MVar Simulation -> IO ()
-tickSimulation v =
-    do updateSimulation v
+find r id = do s <- retrieve r id
+               return (fromRight s)
+
+tickSimulation :: Runner -> Id -> IO ()
+tickSimulation r id =
+    do updateSimulation r id
+       printSimulation r id
 
 main = do printInstructions
-          v <- newMVar newSimulation
+          r <- newRunner
+          register r "TOF" newSimulation
           t <- newTimer
-          repeatedStart t (updateSimulation v) delay 
-          readEvalPrintLoop v
-          printReport v
+          repeatedStart t (tickSimulation r "TOF") delay
+          readEvalPrintLoop r "TOF"
+          printReport r "TOF"
         

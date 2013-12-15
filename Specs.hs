@@ -2,6 +2,8 @@ import Test.Hspec
 import RefrigeratedRoom
 import Simulation
 import Report
+import Runner
+import Data.Maybe
 
 fromRight :: Either a b -> b
 fromRight (Right b) = b
@@ -13,10 +15,10 @@ apply n f i = (iterate f i) !! n
 main :: IO ()
 main = hspec $ do
     describe "A refrigerated room\n" $ do
-        it "should have an initial temperature of 15.0" $ do
+        it "should have an setUpial temperature of 15.0" $ do
             temperature newRoom `shouldBe` 15.0
 
-        it "should have an inital position set to 100" $ do
+        it "should have an setUpal position set to 100" $ do
             position newRoom `shouldBe`100
 
         it "should have its temperature evolve after update" $ do
@@ -88,4 +90,52 @@ main = hspec $ do
             let simulation'' = fromRight $ updateRoom $ simulation'
             showSimulation simulation'' `shouldBe` "STATUS:Running POSITION:50 TEMPERATURE:8.7"
 
+    describe "a simulation runner\n" $ do
+
+        let setUp = do runner <- newRunner
+                       register runner "CHRIS" newSimulation
+                       return runner
+
+        let find r id = do s <- retrieve r "CHRIS"
+                           return (fromRight s)
+
+        it "should memorize and retrieve a simulation with an id" $ do
+            r <- setUp
+            s <- find r "CHRIS"
+            status s `shouldBe` Idle
+            
+        it "should start a simulation" $ do
+            r <- setUp
+            startSimulation r "CHRIS"
+            s <- find r "CHRIS"
+            status s `shouldBe` Running
+
+        it "should stop a simulation" $ do
+            r <- setUp
+            startSimulation r "CHRIS"
+            stopSimulation r "CHRIS"
+            s <- find r "CHRIS"
+            status s `shouldBe` Idle
+
+        it "should update a simulation" $ do
+            r <- setUp
+            startSimulation r "CHRIS"
+            updateSimulation r "CHRIS"
+            s <- find r "CHRIS"
+            temperature (room s) `shouldBe` 14.0
+
+        it "should set the position of a simulation" $ do
+            r <- setUp
+            startSimulation r "CHRIS"
+            setPositionSimulation r "CHRIS" 50
+            s <- find r "CHRIS"
+            position (room s) `shouldBe` 50
+             
+        it "should reinit a simulation" $ do
+            r <- setUp
+            startSimulation r "CHRIS"
+            updateSimulation r "CHRIS"
+            reinitSimulation r "CHRIS"
+            s <- find r "CHRIS"
+            temperature (room s) `shouldBe` 15.0 
 
