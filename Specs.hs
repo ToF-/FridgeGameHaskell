@@ -2,6 +2,10 @@ import Test.Hspec
 import RefrigeratedRoom
 import RoomServer
 
+fromRight :: Either a b -> b
+fromRight (Right b) = b
+fromRight _ = error "fromRight applied to a Left value"
+
 apply :: Int -> (a -> a) -> a -> a
 apply n f i = (iterate f i) !! n
 
@@ -39,15 +43,22 @@ main = hspec $ do
             roomInfo newServer `shouldBe` (15.0, 100)
 
         it "should have a command to set position" $ do
-            roomInfo (setPosition newServer 50) `shouldBe` (15.0, 50)
+            roomInfo (fromRight(setPosition (start newServer) 50)) `shouldBe` (15.0, 50)
+
 
         it "should have a command to update its room" $ do
-            roomInfo (updateRoom newServer) `shouldBe`(14.0, 100)
+            roomInfo (fromRight (updateRoom (start newServer))) `shouldBe`(14.0, 100)
 
         it "should be stoppable" $ do
             status (stop (start newServer)) `shouldBe` Idle
 
         it "should be able to reinitialize" $ do
-            roomInfo (reinit (updateRoom newServer)) `shouldBe` (15.0, 100)
+            roomInfo (reinit (fromRight (updateRoom (start newServer)))) `shouldBe` (15.0, 100)
             status (reinit (start newServer)) `shouldBe` Idle
     
+        it "should not allow to set position if not running" $ do
+            setPosition newServer 50 `shouldBe` Left "SERVER NOT RUNNING"
+            setPosition (stop (start newServer)) 50 `shouldBe` Left "SERVER NOT RUNNING"
+
+        it "should not allow to update room if not running" $ do
+            updateRoom newServer `shouldBe` Left "SERVER NOT RUNNING"
