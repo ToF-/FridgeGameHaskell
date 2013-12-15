@@ -24,53 +24,30 @@ retrieve r id =
                 Just sim -> Right sim
                 Nothing  -> Left "SIMULATION NOT FOUND")
 
-
-startSimulation :: Runner -> Id -> IO ()
-startSimulation r id =
+action :: (Simulation -> Simulation) -> Runner -> Id -> IO ()
+action a r id =
     do map <- takeMVar r
        let s = Map.lookup id map
        let map' = case s of 
-                    Just sim -> insert id (start sim) map
-                    Nothing -> map
+                    Just sim -> insert id (a sim) map
+                    Nothing  -> map
        putMVar r map'
-
+  
+startSimulation :: Runner -> Id -> IO ()
+startSimulation = action start
 
 stopSimulation :: Runner -> Id -> IO ()
-stopSimulation r id =
-    do map <- takeMVar r
-       let s = Map.lookup id map
-       let map' = case s of 
-                    Just sim -> insert id (stop sim) map
-                    Nothing -> map
-       putMVar r map'
+stopSimulation = action stop
 
 reinitSimulation :: Runner -> Id -> IO ()
-reinitSimulation r id = 
-    do map <- takeMVar r
-       let s = Map.lookup id map
-       let map' = case s of 
-                    Just sim -> insert id (reinit sim) map
-                    Nothing -> map
-       putMVar r map'
+reinitSimulation = action reinit
 
 updateSimulation :: Runner -> Id -> IO ()
-updateSimulation r id = 
-    do map <- takeMVar r
-       let s = Map.lookup id map
-       let map' = case s of
-                    Just sim -> insert id (case updateRoom sim of 
-                                              Right sim' -> sim'
-                                              Left _ -> sim)      map
-                    Nothing -> map
-       putMVar r map'
+updateSimulation = action (\sim -> case updateRoom sim of 
+                                      Right sim' -> sim'
+                                      Left _     -> sim) 
 
 setPositionSimulation :: Runner -> Id -> Position -> IO ()
-setPositionSimulation r id pos = 
-    do map <- takeMVar r
-       let s = Map.lookup id map
-       let map' = case s of
-                    Just sim -> insert id (case setPosition sim pos of 
-                                              Right sim' -> sim'
-                                              Left _ -> sim)      map
-                    Nothing -> map
-       putMVar r map'
+setPositionSimulation r id pos = action (\sim -> case setPosition sim pos of 
+                                                    Right sim' -> sim'
+                                                    Left _ -> sim) r id
