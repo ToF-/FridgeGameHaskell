@@ -1,8 +1,11 @@
 module Main
 where
+import Data.Char
 import Control.Concurrent
 import Simulation
 import Report
+import Control.Concurrent.Timer (newTimer, repeatedStart, stopTimer)
+import Control.Concurrent.Suspend.Lifted (Delay, sDelay)
 
 printInstructions :: IO ()
 printInstructions = putStrLn $ unlines
@@ -69,7 +72,7 @@ readEvalPrintLoop :: MVar Simulation -> IO ()
 readEvalPrintLoop v = 
     do printSimulation v
        e <- getLine
-       let (continue, action) = case (words e) of
+       let (continue, action) = case (map (map toUpper) (words e)) of
             ["HELP"]  -> (True,  printInstructions)
             ["QUIT"]  -> (False, putStrLn "QUITTING THE SIMULATION")
             ["START"] -> (True,  startSimulation v)
@@ -79,7 +82,6 @@ readEvalPrintLoop v =
             []        -> (True,  return ())
             _       -> (True,  putStrLn ("UNKNWON COMMAND:" ++ e))
        action
-       updateSimulation v
        case continue of
         True  -> readEvalPrintLoop v
         False -> return ()
@@ -89,8 +91,17 @@ printReport v =
     do s <- readMVar v 
        putStrLn (pretty (report s))
 
+delay :: Delay
+delay = sDelay 60
+
+tickSimulation :: MVar Simulation -> IO ()
+tickSimulation v =
+    do updateSimulation v
+
 main = do printInstructions
           v <- newMVar newSimulation
+          t <- newTimer
+          repeatedStart t (updateSimulation v) delay 
           readEvalPrintLoop v
           printReport v
-         
+        
