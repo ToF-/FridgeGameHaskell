@@ -1,6 +1,7 @@
 module Main
 where
 import Data.Char
+import System.Environment
 import Simulation
 import Report
 import Runner
@@ -74,13 +75,16 @@ tickSimulation r id =
     do updateSimulation r id
        printSimulation r id
 
-main = do printInstructions
+main = do args <- getArgs
+          let d = sDelay (read (args !! 0))
+          let id = args !! 1
+          printInstructions
           r <- newRunner
-          register r "TOF" newSimulation
+          register r id newSimulation
           t <- newTimer
-          repeatedStart t (tickSimulation r "TOF") delay
-          readEvalPrintLoop r "TOF"
-          printReport r "TOF"
+          repeatedStart t (tickSimulation r id) d
+          readEvalPrintLoop r id
+          printReport r id
           
 
         
