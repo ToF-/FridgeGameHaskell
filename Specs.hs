@@ -65,13 +65,14 @@ main = hspec $ do
             updateRoom newSimulation `shouldBe` Left "SIMULATION NOT RUNNING"
 
     describe "a report\n" $ do
+
+        it "should be empty for a new simulation" $ do 
+            report newSimulation `shouldBe` []
         
         it "should record a room state" $ do
-            report (recordState newSimulation []) `shouldBe` [(1,100,15.0)]
+            report (fromRight (updateRoom (start newSimulation))) `shouldBe` [(1,100,15.0)]
 
         it "should record successive room states" $ do
-            report states' `shouldBe` [(1,100,15.0),(2,50,12.333333333333334)]
-            where server = start newSimulation
-                  states = recordState server []
+            report server' `shouldBe` [(1,100,15.0),(2,50,14)]
+            where server = (fromRight (updateRoom (start newSimulation)))
                   server'= (fromRight (updateRoom (fromRight (setPosition server 50))))
-                  states'= recordState server' states
