@@ -152,11 +152,11 @@ main = hspec $ do
             r <- runner "CHRIS"
             startSimulation r "CHRIS"
             s <- setPositionSimulation r "CHRIS" (-1)
-            s `shouldBe` Left "POSITION SHOULD BE WITHIN RANGE [0..100]"
+            s `shouldBe` Left "POSITION SHOULD BE WITHIN RANGE [0..200]"
 
-        it "should signal when attempting to set position to a number greater than 100" $ do
+        it "should signal when attempting to set position to a number greater than 200" $ do
             r <- runner "CHRIS"
             startSimulation r "CHRIS"
-            s <- setPositionSimulation r "CHRIS" 101
-            s `shouldBe` Left "POSITION SHOULD BE WITHIN RANGE [0..100]"
+            s <- setPositionSimulation r "CHRIS" 201
+            s `shouldBe` Left "POSITION SHOULD BE WITHIN RANGE [0..200]"
 

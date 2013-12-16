@@ -2,6 +2,7 @@ module Main
 where
 import Data.Char
 import System.Environment
+import System.Exit
 import Simulation
 import Report
 import Runner
@@ -16,7 +17,7 @@ printInstructions :: IO ()
 printInstructions = putStrLn $ unlines
      ["REFRIGERATED ROOM SIMULATION"
      ,"START     : start the simulator"
-     ,"POS   <n> : set the position [0..100] for the command"
+     ,"POS   <n> : set the position [0..200] for the command"
      ,"<empty>   : let the simulator unchanged"
      ,"STOP      : stop the simulator"
      ,"REINIT    : put the simulator back to initial state"
@@ -81,7 +82,14 @@ tickSimulation r id =
     do updateSimulation r id
        printSimulation r id
 
+validateArgs :: [String] -> IO ()
+validateArgs ss 
+   | length ss == 2 && isInteger (ss !! 0) = return ()
+validateArgs _   = do putStrLn "USAGE: FRIDGE <delay in seconds> <player name>"
+                      exitWith (ExitFailure 1)
+                  
 main = do args <- getArgs
+          validateArgs args 
           let d = sDelay (read (args !! 0))
           let id = args !! 1
           printInstructions
@@ -91,6 +99,7 @@ main = do args <- getArgs
           repeatedStart t (tickSimulation r id) d
           readEvalPrintLoop r id
           printReport r id
+          exitSuccess
           
 
         

@@ -3,7 +3,7 @@ where
 import RefrigeratedRoom
 
 notRunning = "SIMULATION NOT RUNNING"
-illegalRange = "POSITION SHOULD BE WITHIN RANGE [0..100]"
+illegalRange = "POSITION SHOULD BE WITHIN RANGE [0..200]"
 
 type States = [(Position,Temperature)]
 data Simulation = Simulation {status :: Status, room :: RefrigeratedRoom, states :: States}
@@ -24,7 +24,7 @@ roomInfo s = (temperature (room s), position (room s))
 setPosition :: Position -> Simulation -> Either String Simulation
 setPosition _ s | status s /= Running = Left notRunning
 setPosition p s | p < 0 = Left illegalRange
-setPosition p s | p > 100 = Left illegalRange
+setPosition p s | p > 200 = Left illegalRange
 setPosition p s = Right s {room = (room s) {position = p}}
 
 updateRoom :: Simulation -> Either String Simulation
