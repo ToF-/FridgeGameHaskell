@@ -3,6 +3,7 @@ where
 import RefrigeratedRoom
 
 notRunning = "SIMULATION NOT RUNNING"
+illegalRange = "POSITION SHOULD BE WITHIN RANGE [0..100]"
 
 type States = [(Position,Temperature)]
 data Simulation = Simulation {status :: Status, room :: RefrigeratedRoom, states :: States}
@@ -14,22 +15,24 @@ data Status = Idle | Running | Stopped
 newSimulation :: Simulation
 newSimulation = Simulation Idle newRoom []
 
-start :: Simulation -> Simulation 
-start s = s {status = Running}
+start :: Simulation -> Either String Simulation 
+start s = Right s {status = Running}
 
 roomInfo :: Simulation -> (Temperature, Position)
 roomInfo s = (temperature (room s), position (room s))
 
-setPosition :: Simulation -> Position -> Either String Simulation
-setPosition s _ | status s /= Running = Left notRunning
-setPosition s p = Right s {room = (room s) {position = p}}
+setPosition :: Position -> Simulation -> Either String Simulation
+setPosition _ s | status s /= Running = Left notRunning
+setPosition p s | p < 0 = Left illegalRange
+setPosition p s | p > 100 = Left illegalRange
+setPosition p s = Right s {room = (room s) {position = p}}
 
 updateRoom :: Simulation -> Either String Simulation
 updateRoom s | status s /= Running = Left notRunning 
 updateRoom s = Right s {room = update (room s), states = (position (room s),temperature (room s)):states s}
 
-stop :: Simulation -> Simulation
-stop s = s {status = Idle}
+stop :: Simulation -> Either String Simulation
+stop s = Right s {status = Idle}
 
-reinit :: Simulation -> Simulation
-reinit _ = newSimulation
+reinit :: Simulation -> Either String Simulation
+reinit _ = Right newSimulation

@@ -40,35 +40,35 @@ main = hspec $ do
             status newSimulation `shouldBe` Idle
 
         it "should be runnable" $ do
-            status (start newSimulation) `shouldBe` Running
+            status (fromRight $ start newSimulation) `shouldBe` Running
 
         it "should provide information about the room" $ do
             roomInfo newSimulation `shouldBe` (15.0, 100)
 
         it "should have a command to set position" $ do
-            roomInfo (fromRight(setPosition (start newSimulation) 50)) `shouldBe` (15.0, 50)
+            roomInfo (fromRight(setPosition 50 (fromRight $ start newSimulation))) `shouldBe` (15.0, 50)
 
         it "should have a command to update its room" $ do
-            roomInfo (fromRight (updateRoom (start newSimulation))) `shouldBe`(14.0, 100)
+            roomInfo (fromRight (updateRoom (fromRight $ start newSimulation))) `shouldBe`(14.0, 100)
 
         it "should be stoppable" $ do
-            status (stop (start newSimulation)) `shouldBe` Idle
+            status (fromRight $ stop (fromRight $ start newSimulation)) `shouldBe` Idle
 
         it "should be able to reinitialize" $ do
-            roomInfo (reinit (fromRight (updateRoom (start newSimulation)))) `shouldBe` (15.0, 100)
-            status (reinit (start newSimulation)) `shouldBe` Idle
+            roomInfo (fromRight $ reinit (fromRight (updateRoom (fromRight $ start newSimulation)))) `shouldBe` (15.0, 100)
+            status (fromRight $ reinit (fromRight $ start newSimulation)) `shouldBe` Idle
     
         it "should not allow to set position if not running" $ do
-            setPosition newSimulation 50 `shouldBe` Left "SIMULATION NOT RUNNING"
-            setPosition (stop (start newSimulation)) 50 `shouldBe` Left "SIMULATION NOT RUNNING"
+            setPosition 50 newSimulation `shouldBe` Left "SIMULATION NOT RUNNING"
+            setPosition 50 (fromRight $ stop (fromRight $ start newSimulation)) `shouldBe` Left "SIMULATION NOT RUNNING"
 
         it "should not allow to update room if not running" $ do
             updateRoom newSimulation `shouldBe` Left "SIMULATION NOT RUNNING"
 
     describe "a report\n" $ do
 
-        let simulation = fromRight $ updateRoom $ start newSimulation
-            simulation'= fromRight $ updateRoom $ fromRight $ setPosition simulation 50
+        let simulation = fromRight $ updateRoom $ fromRight $ start newSimulation
+            simulation'= fromRight $ updateRoom $ fromRight $ setPosition 50 simulation
 
         it "should be empty for a new simulation" $ do 
             report newSimulation `shouldBe` []
@@ -137,4 +137,26 @@ main = hspec $ do
             reinitSimulation r "CHRIS"
             s <- find r "CHRIS"
             temperature (room s) `shouldBe` 15.0 
+
+        it "should signal when id not found" $ do
+            r <- runner "CHRIS"
+            s <- retrieve r "TOF"
+            s `shouldBe` Left "SIMULATION NOT FOUND"
+
+        it "should signal when attempting to update a simulation not started" $ do
+            r <- runner "CHRIS"
+            s <- updateSimulation r "CHRIS"
+            s `shouldBe` Left "SIMULATION NOT RUNNING"
+
+        it "should signal when attempting to set position to a negative number" $ do
+            r <- runner "CHRIS"
+            startSimulation r "CHRIS"
+            s <- setPositionSimulation r "CHRIS" (-1)
+            s `shouldBe` Left "POSITION SHOULD BE WITHIN RANGE [0..100]"
+
+        it "should signal when attempting to set position to a number greater than 100" $ do
+            r <- runner "CHRIS"
+            startSimulation r "CHRIS"
+            s <- setPositionSimulation r "CHRIS" 101
+            s `shouldBe` Left "POSITION SHOULD BE WITHIN RANGE [0..100]"
 

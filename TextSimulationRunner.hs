@@ -33,12 +33,18 @@ isInteger s = case reads s :: [(Integer, String)] of
   [(_, "")] -> True
   _         -> False
 
-setPosSimulation :: String -> Runner -> Id -> IO ()
+setPosSimulation :: String -> Runner -> Id -> IO (Either String Simulation)
 setPosSimulation p r id = 
     case isInteger p of
-        False -> do putStrLn ("NOT AN INTEGER:" ++ p)
-                    return ()
-        True  -> do setPositionSimulation r id (read p)
+        False -> return (Left ("NOT AN INTEGER:" ++ p))
+        True  -> setPositionSimulation r id (read p)
+
+execute :: IO (Either String Simulation) -> IO ()
+execute a = do result <- a 
+               case result of
+                 Left msg -> putStrLn msg
+                 _ -> return ()
+
 
 readEvalPrintLoop :: Runner -> Id -> IO ()
 readEvalPrintLoop r id = 
@@ -47,10 +53,10 @@ readEvalPrintLoop r id =
        let (continue, action) = case (map (map toUpper) (words e)) of
             ["HELP"]  -> (True,  printInstructions)
             ["QUIT"]  -> (False, putStrLn "QUITTING THE SIMULATION")
-            ["START"] -> (True,  startSimulation r id)
-            ["STOP"]  -> (True,  stopSimulation r id)
-            ["REINIT"]-> (True,  reinitSimulation r id)
-            ["POS",n] -> (True,  setPosSimulation n r id)
+            ["START"] -> (True,  execute (startSimulation r id))
+            ["STOP"]  -> (True,  execute (stopSimulation r id))
+            ["REINIT"]-> (True,  execute (reinitSimulation r id))
+            ["POS",n] -> (True,  execute (setPosSimulation n r id))
             []        -> (True,  return ())
             _       -> (True,  putStrLn ("UNKNWON COMMAND:" ++ e))
        action

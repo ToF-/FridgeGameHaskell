@@ -24,30 +24,30 @@ retrieve r id =
                 Just sim -> Right sim
                 Nothing  -> Left "SIMULATION NOT FOUND")
 
-action :: (Simulation -> Simulation) -> Runner -> Id -> IO ()
+action :: (Simulation -> Either String Simulation) -> Runner -> Id -> IO (Either String Simulation)
 action a r id =
     do map <- takeMVar r
        let s = Map.lookup id map
-       let map' = case s of 
-                    Just sim -> insert id (a sim) map
-                    Nothing  -> map
+       let (map',result) = case s of 
+                            Just sim -> case a sim of 
+                                            Right sim' -> (insert id sim' map, Right sim')
+                                            Left msg   -> (map, Left msg)
+                            Nothing  -> (map, Left "SIMULATION NOT FOUND")
        putMVar r map'
+       return result
   
-startSimulation :: Runner -> Id -> IO ()
+startSimulation :: Runner -> Id -> IO (Either String Simulation)
 startSimulation = action start
 
-stopSimulation :: Runner -> Id -> IO ()
+stopSimulation :: Runner -> Id -> IO (Either String Simulation)
 stopSimulation = action stop
 
-reinitSimulation :: Runner -> Id -> IO ()
+reinitSimulation :: Runner -> Id -> IO (Either String Simulation)
 reinitSimulation = action reinit
 
-updateSimulation :: Runner -> Id -> IO ()
-updateSimulation = action (\sim -> case updateRoom sim of 
-                                      Right sim' -> sim'
-                                      Left _     -> sim) 
+updateSimulation :: Runner -> Id -> IO (Either String Simulation) 
+updateSimulation = action updateRoom
 
-setPositionSimulation :: Runner -> Id -> Position -> IO ()
-setPositionSimulation r id pos = action (\sim -> case setPosition sim pos of 
-                                                    Right sim' -> sim'
-                                                    Left _ -> sim) r id
+setPositionSimulation :: Runner -> Id -> Position -> IO (Either String Simulation)
+setPositionSimulation r id pos = action (setPosition pos) r id
+ 
