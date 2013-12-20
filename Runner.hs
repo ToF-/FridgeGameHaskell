@@ -51,3 +51,12 @@ updateSimulation = action updateRoom
 setPositionSimulation :: Runner -> Id -> Position -> IO (Either String Simulation)
 setPositionSimulation r id pos = action (setPosition pos) r id
  
+getState :: Runner -> Id -> IO (Either String String)
+getState r id = 
+    do s <- retrieve r id
+    
+       case s of 
+           Right sim -> return $ Right $ "{\"status\":"++ (show (status sim)) ++
+                                    ",\"position\":"++ (show (position (room sim))) ++ 
+                                    ",\"temperature\":" ++ (show (temperature (room sim))) ++ "}"
+           Left msg -> return $ Left msg

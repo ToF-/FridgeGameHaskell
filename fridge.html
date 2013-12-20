@@ -1,0 +1,28 @@
+<html>
+<head>
+</head>
+<body>
+    <script src="jquery-2.0.3.min.js"> </script>
+    <script>
+        $(document).ready(function() {
+            getSimulationState = function() {
+                $.getJSON("/getSimulationState?param=\"TOF\"", 
+                    function(data) {
+                        $("#status").html("Running");
+                        $("#position").html("101");
+                        $("#temperature").html("14.0");
+                        });
+                setTimeout(getSimulationState, 5000);
+            };
+            getSimulationState();
+            });
+    </script>
+    <table border="1">
+        <tr>
+            <td id="status">Idle</td>
+            <td id="position">100</td>
+            <td id="temperature">15.0</td>
+        </tr>
+        </table> 
+</body>
+</html>

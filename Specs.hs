@@ -160,3 +160,14 @@ main = hspec $ do
             s <- setPositionSimulation r "CHRIS" 201
             s `shouldBe` Left "POSITION SHOULD BE WITHIN RANGE [0..200]"
 
+        it "should communicate simulation information" $ do
+            r <- runner "CHRIS"
+            json <- getState r "CHRIS"
+            json `shouldBe` Right "{\"status\":Idle,\"position\":100,\"temperature\":15.0}"
+
+        it "should communicate an error if simulation unknown" $ do
+            r <- runner "CHRIS"
+            json <- getState r "TOF"
+            json `shouldBe` Left "SIMULATION NOT FOUND"
+
+
