@@ -5,8 +5,11 @@ specs: Specs.hs RefrigeratedRoom.hs Simulation.hs Report.hs
 	$(C) --make Specs.hs -o bin/specs
 	bin/specs
 
-server: SimpleServer.hs
+simpleserver: SimpleServer.hs
 	$(C) $(F) SimpleServer.hs -o bin/server
+
+simserver: SimulationServer.hs
+	$(C) $(F) SimulationServer.hs -o bin/simserver
 
 timer: SimpleTimerExample.hs
 	$(C) $(F) SimpleTimerExample.hs -o bin/timer
