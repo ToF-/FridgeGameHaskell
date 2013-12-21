@@ -11,7 +11,7 @@ temperature :: RefrigeratedRoom -> Temperature
 temperature = head . temperatures
 
 initialTemperatures :: [Temperature]
-initialTemperatures = take 5 (repeat 15)
+initialTemperatures = take 5 $ repeat 15
 
 newRoom :: RefrigeratedRoom 
 newRoom = Room initialTemperatures 100
