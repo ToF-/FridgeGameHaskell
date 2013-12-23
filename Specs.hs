@@ -163,7 +163,7 @@ main = hspec $ do
         it "should communicate simulation information" $ do
             r <- runner "CHRIS"
             json <- getState r "CHRIS"
-            json `shouldBe` Right "{\"status\":Idle,\"position\":100,\"temperature\":15.0}"
+            json `shouldBe` Right "{\"status\":\"Idle\",\"position\":100,\"temperature\":15.0}"
 
         it "should communicate an error if simulation unknown" $ do
             r <- runner "CHRIS"

@@ -5,16 +5,21 @@
     <script src="jquery-2.0.3.min.js"> </script>
     <script>
         $(document).ready(function() {
-            $("#Register").click(function () {
+            $("#Register").click(function() {
                 $.getJSON("/register?id=\""+$('#Id').val()+"\"",function(data) {
+                    alert(data);
+                    });
+                });
+            $("#Start").click(function() {
+                $.getJSON("/start?id=\""+$('#Id').val()+"\"",function(data) {
                     alert(data);
                     });
                 });
             });
     </script>
     Id:<input type="text" id="Id"></input><br>
-    <input type="button" id="Register" value="Register" </input><br>
-    <input type="button" id="Start"    value="Start"    onclick="start()"    </input><br>
-    <input type="button" id="Stop"     value="Stop"     onclick="stop()"     </input><br>
+    <input type="button" id="Register" value="Register" ></input><br>
+    <input type="button" id="Start"    value="Start"    onclick="start()">    </input><br>
+    <input type="button" id="Stop"     value="Stop"     onclick="stop()">    </input><br>
 </body>
 </html>

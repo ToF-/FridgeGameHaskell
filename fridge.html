@@ -2,27 +2,32 @@
 <head>
 </head>
 <body>
+
     <script src="jquery-2.0.3.min.js"> </script>
     <script>
         $(document).ready(function() {
-            getSimulationState = function() {
-                $.getJSON("/getSimulationState?id=\"TOF\"", 
-                    function(data) {
-                        $("#status").html("Running");
-                        $("#position").html("101");
-                        $("#temperature").html("14.0");
-                        });
-                setTimeout(getSimulationState, 5000);
-            };
-            getSimulationState();
+
+            $.urlParam = function(name){
+                var results = new RegExp('[\\?&amp;]' + name + '=([^&amp;#]*)').exec(window.location.href);
+                return results[1] || 0;
+};
+
+            $("#State").click(function() {
+                $.getJSON("/state?id=\""+$.urlParam("id")+"\"", function(response) {
+                    $("#status").text(response.status);
+                    $("#position").text(response.position);
+                    $("#temperature").text(response.temperature);
+                    });
+                });        
             });
     </script>
     <table border="1">
         <tr>
-            <td id="status">Idle</td>
-            <td id="position">100</td>
-            <td id="temperature">15.0</td>
+            <td id="status"></td>
+            <td id="position"></td>
+            <td id="temperature"></td>
         </tr>
-        </table> 
+    </table> 
+    <input type="button" id="State" value="State"></input><br>
 </body>
 </html>

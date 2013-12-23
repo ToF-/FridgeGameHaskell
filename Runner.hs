@@ -54,7 +54,7 @@ getState r id =
     do s <- retrieve r id
     
        case s of 
-           Right sim -> return $ Right $ "{\"status\":"++ (show (status sim)) ++
+           Right sim -> return $ Right $ "{\"status\":"++ (show (show (status sim))) ++
                                     ",\"position\":"++ (show (position (room sim))) ++ 
                                     ",\"temperature\":" ++ (show (temperature (room sim))) ++ "}"
            Left msg -> return $ Left msg
