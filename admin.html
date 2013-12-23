@@ -5,16 +5,12 @@
     <script src="jquery-2.0.3.min.js"> </script>
     <script>
         $(document).ready(function() {
-            $("#Register").click(function() {
-                $.getJSON("/register?id=\""+$('#Id').val()+"\"",function(data) {
-                    alert(data);
-                    });
-                });
-            $("#Start").click(function() {
-                $.getJSON("/start?id=\""+$('#Id').val()+"\"",function(data) {
-                    alert(data);
-                    });
-                });
+            var call=function(service) {
+                $.getJSON("/" + service + "?id=\"" + $('#Id').val() + "\"");
+                };
+            $("#Register").click(function() { call("register"); })
+            $("#Stop").click(function() { call("stop"); })
+            $("#Start").click(function() { call("start"); })
             });
     </script>
     Id:<input type="text" id="Id"></input><br>

@@ -58,3 +58,11 @@ getState r id =
                                     ",\"position\":"++ (show (position (room sim))) ++ 
                                     ",\"temperature\":" ++ (show (temperature (room sim))) ++ "}"
            Left msg -> return $ Left msg
+
+updateAllSimulations :: Runner -> IO ()
+updateAllSimulations r = 
+    do m <- takeMVar r
+       putMVar r $ Map.map updateSim m
+    where updateSim sim = case updateRoom sim of 
+                               Right sim' -> sim'
+                               Left  _    -> sim

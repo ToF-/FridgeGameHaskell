@@ -1,5 +1,6 @@
 module Main
 where
+import System.Environment
 import Control.Monad.Trans (lift)
 import Control.Monad (msum)
 import Happstack.Lite
@@ -7,11 +8,17 @@ import Data.Text.Lazy (unpack)
 import Simulation
 import Runner 
 import Text.JSON
+import Control.Concurrent.Timer (newTimer, repeatedStart, stopTimer)
+import Control.Concurrent.Suspend.Lifted (Delay, sDelay)
+
+getIdParam :: ServerPart Id
+getIdParam = do
+    param <- lookText "id"
+    return $ read $ unpack param
 
 registerSimulation :: Runner -> ServerPart Response
 registerSimulation r = do
-    param <- lookText "id"
-    let id = read $ unpack param
+    id <- getIdParam
     lift $ register r id newSimulation
     lift $ putStrLn $ "registering simulation with id "++id
     ok $ toResponse $ encode "OK"
@@ -19,8 +26,7 @@ registerSimulation r = do
 
 startTheSimulation :: Runner -> ServerPart Response
 startTheSimulation r = do
-    param <- lookText "id"
-    let id = read $ unpack param
+    id <- getIdParam
     result <- lift $ startSimulation r id 
     let response = case result of
                     Right sim -> "OK"
@@ -28,10 +34,19 @@ startTheSimulation r = do
     lift $ putStrLn $ "starting simulsation with id " ++ id
     ok $ toResponse $ encode response
 
+stopTheSimulation :: Runner -> ServerPart Response
+stopTheSimulation r = do
+    id <- getIdParam
+    result <- lift $ stopSimulation r id 
+    let response = case result of
+                    Right sim -> "OK"
+                    Left msg  -> msg
+    lift $ putStrLn $ "stopping simulsation with id " ++ id
+    ok $ toResponse $ encode response
+
 simulationState :: Runner -> ServerPart Response
 simulationState r = do
-    param <- lookText "id"
-    let id = read $ unpack param
+    id <- getIdParam
     result <- lift $ getState r id
     let response = case result of
                     Right json -> json
@@ -46,7 +61,16 @@ routes :: Runner -> ServerPart Response
 routes r = msum [dir "state" $ simulationState r
                 ,dir "register" $ registerSimulation r
                 ,dir "start" $ startTheSimulation r
+                ,dir "stop"  $ stopTheSimulation r
                 ,staticFiles] 
 
-main = do r <- newRunner
+updateSimulations :: Runner -> IO ()
+updateSimulations r = do updateAllSimulations r
+                         putStrLn "updating all simulations.."
+
+main = do args <- getArgs
+          let d = sDelay (read (args !! 0))
+          r <- newRunner
+          t <- newTimer
+          repeatedStart t (updateSimulations r) d
           serve Nothing $ routes r

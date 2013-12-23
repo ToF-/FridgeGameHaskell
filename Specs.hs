@@ -91,47 +91,47 @@ main = hspec $ do
 
     describe "a simulation runner\n" $ do
 
-        let runner id = do r <- newRunner
-                           register r id newSimulation
-                           return r
+        let runnerFor id = do r <- newRunner
+                              register r id newSimulation
+                              return r
 
         let find r id = do s <- retrieve r id 
                            return (fromRight s)
 
         it "should memorize and retrieve a simulation with an id" $ do
-            r <- runner "CHRIS"
+            r <- runnerFor "CHRIS"
             s <- find r "CHRIS"
             status s `shouldBe` Idle
             
         it "should start a simulation" $ do
-            r <- runner "CHRIS"
+            r <- runnerFor "CHRIS"
             startSimulation r "CHRIS"
             s <- find r "CHRIS"
             status s `shouldBe` Running
 
         it "should stop a simulation" $ do
-            r <- runner "CHRIS"
+            r <- runnerFor "CHRIS"
             startSimulation r "CHRIS"
             stopSimulation r "CHRIS"
             s <- find r "CHRIS"
             status s `shouldBe` Idle
 
         it "should update a simulation" $ do
-            r <- runner "CHRIS"
+            r <- runnerFor "CHRIS"
             startSimulation r "CHRIS"
             updateSimulation r "CHRIS"
             s <- find r "CHRIS"
             temperature (room s) `shouldBe` 14.0
 
         it "should set the position of a simulation" $ do
-            r <- runner "CHRIS"
+            r <- runnerFor "CHRIS"
             startSimulation r "CHRIS"
             setPositionSimulation r "CHRIS" 50
             s <- find r "CHRIS"
             position (room s) `shouldBe` 50
              
         it "should reinit a simulation" $ do
-            r <- runner "CHRIS"
+            r <- runnerFor "CHRIS"
             startSimulation r "CHRIS"
             updateSimulation r "CHRIS"
             reinitSimulation r "CHRIS"
@@ -139,35 +139,50 @@ main = hspec $ do
             temperature (room s) `shouldBe` 15.0 
 
         it "should signal when id not found" $ do
-            r <- runner "CHRIS"
+            r <- runnerFor "CHRIS"
             s <- retrieve r "TOF"
             s `shouldBe` Left "SIMULATION NOT FOUND"
 
         it "should signal when attempting to update a simulation not started" $ do
-            r <- runner "CHRIS"
+            r <- runnerFor "CHRIS"
             s <- updateSimulation r "CHRIS"
             s `shouldBe` Left "SIMULATION NOT RUNNING"
 
         it "should signal when attempting to set position to a negative number" $ do
-            r <- runner "CHRIS"
+            r <- runnerFor "CHRIS"
             startSimulation r "CHRIS"
             s <- setPositionSimulation r "CHRIS" (-1)
             s `shouldBe` Left "POSITION SHOULD BE WITHIN RANGE [0..200]"
 
         it "should signal when attempting to set position to a number greater than 200" $ do
-            r <- runner "CHRIS"
+            r <- runnerFor "CHRIS"
             startSimulation r "CHRIS"
             s <- setPositionSimulation r "CHRIS" 201
             s `shouldBe` Left "POSITION SHOULD BE WITHIN RANGE [0..200]"
 
         it "should communicate simulation information" $ do
-            r <- runner "CHRIS"
+            r <- runnerFor "CHRIS"
             json <- getState r "CHRIS"
             json `shouldBe` Right "{\"status\":\"Idle\",\"position\":100,\"temperature\":15.0}"
 
         it "should communicate an error if simulation unknown" $ do
-            r <- runner "CHRIS"
+            r <- runnerFor "CHRIS"
             json <- getState r "TOF"
             json `shouldBe` Left "SIMULATION NOT FOUND"
+
+        it "should update all simulations in a row" $ do
+            r <- newRunner
+            register r "CHRIS" newSimulation
+            register r "TOF" newSimulation
+            startSimulation r "CHRIS"
+            startSimulation r "TOF"
+            updateAllSimulations r
+            s <- find r "CHRIS"
+            temperature (room s) `shouldBe` 14.0
+            s <- find r "TOF"
+            temperature (room s) `shouldBe` 14.0
+            
+
+            
 
 

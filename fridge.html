@@ -11,15 +11,16 @@
                 var results = new RegExp('[\\?&amp;]' + name + '=([^&amp;#]*)').exec(window.location.href);
                 return results[1] || 0;
 };
-
-            $("#State").click(function() {
+            rounded = function(n) { return(Math.round(n * 10) / 10); };    
+            update = function() {
                 $.getJSON("/state?id=\""+$.urlParam("id")+"\"", function(response) {
                     $("#status").text(response.status);
                     $("#position").text(response.position);
-                    $("#temperature").text(response.temperature);
+                    $("#temperature").text(rounded(response.temperature));
                     });
-                });        
-            });
+                }; 
+            $("#State").click(update);
+        });
     </script>
     <table border="1">
         <tr>

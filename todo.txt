@@ -1,0 +1,4 @@
+- server responses should be JSON - success or not
+- review layering and naming
+- use JSON to encode simulation state
+
