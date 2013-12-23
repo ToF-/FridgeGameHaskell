@@ -83,11 +83,11 @@ main = hspec $ do
             pretty (report simulation') `shouldBe` "1\t100\t15.0\n2\t50\t14.0\n"    
 
         it "should print the current state" $ do
-             showSimulation simulation `shouldBe` "STATUS:Running POSITION:100 TEMPERATURE:14.0"
+             displaySimulationState simulation `shouldBe` "STATUS:Running POSITION:100 TEMPERATURE:14.0"
             
         it "should round temperature display" $ do
             let simulation'' = fromRight $ updateRoom $ simulation'
-            showSimulation simulation'' `shouldBe` "STATUS:Running POSITION:50 TEMPERATURE:8.7"
+            displaySimulationState simulation'' `shouldBe` "STATUS:Running POSITION:50 TEMPERATURE:8.7"
 
     describe "a simulation runner\n" $ do
 

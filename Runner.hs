@@ -19,16 +19,14 @@ register r id s =
 retrieve :: Runner -> Id -> IO (Either String Simulation)
 retrieve r id =
     do map <- readMVar r
-       let s = Map.lookup id map
-       return (case s of
+       return (case Map.lookup id map of
                 Just sim -> Right sim
                 Nothing  -> Left "SIMULATION NOT FOUND")
 
 action :: (Simulation -> Either String Simulation) -> Runner -> Id -> IO (Either String Simulation)
 action a r id =
     do map <- takeMVar r
-       let s = Map.lookup id map
-       let (map',result) = case s of 
+       let (map',result) = case Map.lookup id map of 
                             Just sim -> case a sim of 
                                             Right sim' -> (insert id sim' map, Right sim')
                                             Left msg   -> (map, Left msg)

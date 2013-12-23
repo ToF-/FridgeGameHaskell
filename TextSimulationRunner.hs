@@ -26,7 +26,7 @@ printInstructions = putStrLn $ unlines
 
 printSimulation :: Runner -> Id -> IO ()
 printSimulation r id = do s <- find r id
-                          putStrLn $ showSimulation s
+                          putStrLn $ displaySimulationState s
 
 
 isInteger :: String -> Bool
@@ -100,6 +100,3 @@ main = do args <- getArgs
           readEvalPrintLoop r id
           printReport r id
           exitSuccess
-          
-
-        
