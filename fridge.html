@@ -19,7 +19,11 @@
                     $("#temperature").text(rounded(response.temperature));
                     });
                 }; 
-            $("#State").click(update);
+            tickUpdate = function () {
+                update();
+                setTimeout(tickUpdate, 5000);
+            };
+            tickUpdate();
         });
     </script>
     <table border="1">
@@ -29,6 +33,5 @@
             <td id="temperature"></td>
         </tr>
     </table> 
-    <input type="button" id="State" value="State"></input><br>
 </body>
 </html>
