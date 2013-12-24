@@ -18,7 +18,8 @@ register r id s =
        putMVar r (insert id s map)
        return $ Right s
 
-action :: (Simulation -> Either String Simulation) -> Runner -> Id -> IO (Either String Simulation)
+action :: (Simulation -> Either String Simulation) -> Runner -> Id 
+            -> IO (Either String Simulation)
 action a r id =
     do map <- takeMVar r
        let (map',result) = case Map.lookup id map of 
