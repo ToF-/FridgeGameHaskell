@@ -1,15 +1,23 @@
 module Main
 where
-import System.Environment
+import System.Environment (getArgs)
 import Control.Monad.Trans (lift)
 import Control.Monad (msum)
-import Happstack.Lite
+import Happstack.Lite (ServerPart, Response, ok, dir, lookText, 
+                       toResponse, serveDirectory, Browsing(EnableBrowsing), serve)
 import Data.Text.Lazy (unpack)
-import Simulation
-import Runner 
-import Text.JSON
+import Simulation (newSimulation)
+import Runner (Runner, getState, register, Id, startSimulation, stopSimulation, 
+               updateAllSimulations, newRunner, setPositionSimulation)
+import Text.JSON (encode)
 import Control.Concurrent.Timer (newTimer, repeatedStart, stopTimer)
 import Control.Concurrent.Suspend.Lifted (Delay, sDelay)
+
+logLn :: String -> ServerPart ()
+logLn = lift . putStrLn
+
+respond :: String -> ServerPart Response
+respond = ok . toResponse . encode
 
 getIdParam :: ServerPart Id
 getIdParam = do
@@ -20,8 +28,8 @@ registerSimulation :: Runner -> ServerPart Response
 registerSimulation r = do
     id <- getIdParam
     lift $ register r id newSimulation
-    lift $ putStrLn $ "registering simulation with id "++id
-    ok $ toResponse $ encode "OK"
+    logLn $ "registering simulation with id "++id
+    respond "OK"
     
 
 startTheSimulation :: Runner -> ServerPart Response
@@ -31,8 +39,8 @@ startTheSimulation r = do
     let response = case result of
                     Right sim -> "OK"
                     Left msg  -> msg
-    lift $ putStrLn $ "starting simulsation with id " ++ id
-    ok $ toResponse $ encode response
+    logLn $ "starting simulsation with id " ++ id
+    respond response
 
 stopTheSimulation :: Runner -> ServerPart Response
 stopTheSimulation r = do
@@ -41,8 +49,8 @@ stopTheSimulation r = do
     let response = case result of
                     Right sim -> "OK"
                     Left msg  -> msg
-    lift $ putStrLn $ "stopping simulsation with id " ++ id
-    ok $ toResponse $ encode response
+    logLn $ "stopping simulsation with id " ++ id
+    respond response
 
 simulationState :: Runner -> ServerPart Response
 simulationState r = do
@@ -51,7 +59,7 @@ simulationState r = do
     let response = case result of
                     Right json -> json
                     Left msg   -> msg
-    lift $ putStrLn $ "state with id " ++ id ++ " response:" ++ response
+    logLn $ "state with id " ++ id ++ " response:" ++ response
     ok $ toResponse response
 
 setThePosition :: Runner -> ServerPart Response
@@ -63,8 +71,8 @@ setThePosition r = do
     let response = case result of
                     Right _ -> "OK"
                     Left msg -> msg
-    lift $ putStrLn $ "set simulation with id " ++ id ++ " to position " ++ (show pos) ++ " :" ++ response
-    ok $ toResponse $ encode response
+    logLn $ "set simulation with id " ++ id ++ " to position " ++ (show pos) ++ " :" ++ response
+    respond response
     
 
 staticFiles :: ServerPart Response
