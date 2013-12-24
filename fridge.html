@@ -15,10 +15,14 @@
             update = function() {
                 $.getJSON("/state?id=\""+$.urlParam("id")+"\"", function(response) {
                     $("#status").text(response.status);
-                    $("#position").text(response.position);
+                    $("#position").val(response.position);
                     $("#temperature").text(rounded(response.temperature));
                     });
                 }; 
+            change_position = function() {
+                
+                $.getJSON("/position?id=\""+$.urlParam("id")+"\"&pos=\""+$("#position").val()+"\"");
+                };
             tickUpdate = function () {
                 update();
                 setTimeout(tickUpdate, 5000);
@@ -29,7 +33,9 @@
     <table border="1">
         <tr>
             <td id="status"></td>
-            <td id="position"></td>
+            <td id="position_cell">
+                <input id="position" type="number" onchange="change_position()"></input>
+            </td>
             <td id="temperature"></td>
         </tr>
     </table> 

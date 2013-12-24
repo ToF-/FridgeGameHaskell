@@ -126,7 +126,7 @@ main = hspec $ do
         it "should set the position of a simulation" $ do
             r <- runnerFor "CHRIS"
             startSimulation r "CHRIS"
-            setPositionSimulation r "CHRIS" 50
+            setPositionSimulation r "CHRIS" "50"
             s <- find r "CHRIS"
             position (room s) `shouldBe` 50
              
@@ -151,14 +151,20 @@ main = hspec $ do
         it "should signal when attempting to set position to a negative number" $ do
             r <- runnerFor "CHRIS"
             startSimulation r "CHRIS"
-            s <- setPositionSimulation r "CHRIS" (-1)
+            s <- setPositionSimulation r "CHRIS" "-1"
             s `shouldBe` Left "POSITION SHOULD BE WITHIN RANGE [0..200]"
 
         it "should signal when attempting to set position to a number greater than 200" $ do
             r <- runnerFor "CHRIS"
             startSimulation r "CHRIS"
-            s <- setPositionSimulation r "CHRIS" 201
+            s <- setPositionSimulation r "CHRIS" "201"
             s `shouldBe` Left "POSITION SHOULD BE WITHIN RANGE [0..200]"
+
+        it "should signal when attempting to set position to a non integer value" $ do
+            r <- runnerFor "CHRIS"
+            startSimulation r "CHRIS"
+            s <- setPositionSimulation r "CHRIS" "ERR"
+            s `shouldBe` Left "NOT AN INTEGER: ERR"
 
         it "should communicate simulation information" $ do
             r <- runnerFor "CHRIS"

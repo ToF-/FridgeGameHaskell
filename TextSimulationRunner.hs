@@ -29,16 +29,9 @@ printSimulation r id = do s <- find r id
                           putStrLn $ displaySimulationState s
 
 
-isInteger :: String -> Bool
-isInteger s = case reads s :: [(Integer, String)] of
-  [(_, "")] -> True
-  _         -> False
 
 setPosSimulation :: String -> Runner -> Id -> IO (Either String Simulation)
-setPosSimulation p r id = 
-    case isInteger p of
-        False -> return (Left ("NOT AN INTEGER:" ++ p))
-        True  -> setPositionSimulation r id (read p)
+setPosSimulation p r id = setPositionSimulation r id p
 
 execute :: IO (Either String Simulation) -> IO ()
 execute a = do result <- a 

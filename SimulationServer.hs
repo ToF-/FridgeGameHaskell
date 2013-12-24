@@ -54,6 +54,19 @@ simulationState r = do
     lift $ putStrLn $ "state with id " ++ id ++ " response:" ++ response
     ok $ toResponse response
 
+setThePosition :: Runner -> ServerPart Response
+setThePosition r = do
+    id <- getIdParam
+    param <- lookText "pos"
+    let pos = read $ unpack param
+    result <- lift $ setPositionSimulation r id pos
+    let response = case result of
+                    Right _ -> "OK"
+                    Left msg -> msg
+    lift $ putStrLn $ "set simulation with id " ++ id ++ " to position " ++ (show pos) ++ " :" ++ response
+    ok $ toResponse $ encode response
+    
+
 staticFiles :: ServerPart Response
 staticFiles = serveDirectory EnableBrowsing ["fridge.html", "admin.html","jquery-2.0.3.min.js"] "."
 
@@ -62,6 +75,7 @@ routes r = msum [dir "state" $ simulationState r
                 ,dir "register" $ registerSimulation r
                 ,dir "start" $ startTheSimulation r
                 ,dir "stop"  $ stopTheSimulation r
+                ,dir "position" $ setThePosition r
                 ,staticFiles] 
 
 updateSimulations :: Runner -> IO ()
