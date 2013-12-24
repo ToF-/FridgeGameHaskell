@@ -35,12 +35,6 @@ action a r id =
        putMVar r map'
        return result
   
-startSimulation :: Runner -> Id -> IO (Either String Simulation)
-startSimulation = action start
-
-stopSimulation :: Runner -> Id -> IO (Either String Simulation)
-stopSimulation = action stop
-
 reinitSimulation :: Runner -> Id -> IO (Either String Simulation)
 reinitSimulation = action reinit
 

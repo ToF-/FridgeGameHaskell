@@ -6,8 +6,8 @@ import Control.Monad (msum)
 import Happstack.Lite (ServerPart, Response, ok, dir, lookText, 
                        toResponse, serveDirectory, Browsing(EnableBrowsing), serve)
 import Data.Text.Lazy (unpack)
-import Simulation (newSimulation)
-import Runner (Runner, getState, register, Id, startSimulation, stopSimulation, 
+import Simulation (newSimulation, start, stop)
+import Runner (Runner, getState, register, Id, action, 
                updateAllSimulations, newRunner, setPositionSimulation)
 import Text.JSON (encode)
 import Control.Concurrent.Timer (newTimer, repeatedStart, stopTimer)
@@ -35,7 +35,7 @@ registerSimulation r = do
 startTheSimulation :: Runner -> ServerPart Response
 startTheSimulation r = do
     id <- getIdParam
-    result <- lift $ startSimulation r id 
+    result <- lift $ action start r id 
     let response = case result of
                     Right sim -> "OK"
                     Left msg  -> msg
@@ -45,7 +45,7 @@ startTheSimulation r = do
 stopTheSimulation :: Runner -> ServerPart Response
 stopTheSimulation r = do
     id <- getIdParam
-    result <- lift $ stopSimulation r id 
+    result <- lift $ action stop r id 
     let response = case result of
                     Right sim -> "OK"
                     Left msg  -> msg

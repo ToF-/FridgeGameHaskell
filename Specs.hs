@@ -105,34 +105,34 @@ main = hspec $ do
             
         it "should start a simulation" $ do
             r <- runnerFor "CHRIS"
-            startSimulation r "CHRIS"
+            action start r "CHRIS"
             s <- find r "CHRIS"
             status s `shouldBe` Running
 
         it "should stop a simulation" $ do
             r <- runnerFor "CHRIS"
-            startSimulation r "CHRIS"
-            stopSimulation r "CHRIS"
+            action start r "CHRIS"
+            action stop r "CHRIS"
             s <- find r "CHRIS"
             status s `shouldBe` Idle
 
         it "should update a simulation" $ do
             r <- runnerFor "CHRIS"
-            startSimulation r "CHRIS"
+            action start r "CHRIS"
             updateSimulation r "CHRIS"
             s <- find r "CHRIS"
             temperature (room s) `shouldBe` 14.0
 
         it "should set the position of a simulation" $ do
             r <- runnerFor "CHRIS"
-            startSimulation r "CHRIS"
+            action start r "CHRIS"
             setPositionSimulation r "CHRIS" "50"
             s <- find r "CHRIS"
             position (room s) `shouldBe` 50
              
         it "should reinit a simulation" $ do
             r <- runnerFor "CHRIS"
-            startSimulation r "CHRIS"
+            action start r "CHRIS"
             updateSimulation r "CHRIS"
             reinitSimulation r "CHRIS"
             s <- find r "CHRIS"
@@ -150,19 +150,19 @@ main = hspec $ do
 
         it "should signal when attempting to set position to a negative number" $ do
             r <- runnerFor "CHRIS"
-            startSimulation r "CHRIS"
+            action start r "CHRIS"
             s <- setPositionSimulation r "CHRIS" "-1"
             s `shouldBe` Left "POSITION SHOULD BE WITHIN RANGE [0..200]"
 
         it "should signal when attempting to set position to a number greater than 200" $ do
             r <- runnerFor "CHRIS"
-            startSimulation r "CHRIS"
+            action start r "CHRIS"
             s <- setPositionSimulation r "CHRIS" "201"
             s `shouldBe` Left "POSITION SHOULD BE WITHIN RANGE [0..200]"
 
         it "should signal when attempting to set position to a non integer value" $ do
             r <- runnerFor "CHRIS"
-            startSimulation r "CHRIS"
+            action start r "CHRIS"
             s <- setPositionSimulation r "CHRIS" "ERR"
             s `shouldBe` Left "NOT AN INTEGER: ERR"
 
@@ -180,8 +180,8 @@ main = hspec $ do
             r <- newRunner
             register r "CHRIS" newSimulation
             register r "TOF" newSimulation
-            startSimulation r "CHRIS"
-            startSimulation r "TOF"
+            action start r "CHRIS"
+            action start r "TOF"
             updateAllSimulations r
             s <- find r "CHRIS"
             temperature (room s) `shouldBe` 14.0

@@ -44,16 +44,16 @@ readEvalPrintLoop :: Runner -> Id -> IO ()
 readEvalPrintLoop r id = 
     do printSimulation r id
        e <- getLine
-       let (continue, action) = case (map (map toUpper) (words e)) of
+       let (continue, command) = case (map (map toUpper) (words e)) of
             ["HELP"]  -> (True,  printInstructions)
             ["QUIT"]  -> (False, putStrLn "QUITTING THE SIMULATION")
-            ["START"] -> (True,  execute (startSimulation r id))
-            ["STOP"]  -> (True,  execute (stopSimulation r id))
+            ["START"] -> (True,  execute (action start r id))
+            ["STOP"]  -> (True,  execute (action stop r id))
             ["REINIT"]-> (True,  execute (reinitSimulation r id))
             ["POS",n] -> (True,  execute (setPosSimulation n r id))
             []        -> (True,  return ())
             _       -> (True,  putStrLn ("UNKNWON COMMAND:" ++ e))
-       action
+       command
        case continue of
         True  -> readEvalPrintLoop r id
         False -> return ()
