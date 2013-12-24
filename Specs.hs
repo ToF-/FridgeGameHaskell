@@ -95,7 +95,7 @@ main = hspec $ do
                               register r id newSimulation
                               return r
 
-        let find r id = do s <- retrieve r id 
+        let find r id = do s <- action retrieve r id 
                            return (fromRight s)
 
         it "should memorize and retrieve a simulation with an id" $ do
@@ -119,7 +119,7 @@ main = hspec $ do
         it "should update a simulation" $ do
             r <- runnerFor "CHRIS"
             action start r "CHRIS"
-            updateSimulation r "CHRIS"
+            action updateRoom r "CHRIS"
             s <- find r "CHRIS"
             temperature (room s) `shouldBe` 14.0
 
@@ -133,19 +133,19 @@ main = hspec $ do
         it "should reinit a simulation" $ do
             r <- runnerFor "CHRIS"
             action start r "CHRIS"
-            updateSimulation r "CHRIS"
-            reinitSimulation r "CHRIS"
+            action updateRoom r "CHRIS"
+            action reinit r "CHRIS"
             s <- find r "CHRIS"
             temperature (room s) `shouldBe` 15.0 
 
         it "should signal when id not found" $ do
             r <- runnerFor "CHRIS"
-            s <- retrieve r "TOF"
+            s <- action retrieve r "TOF"
             s `shouldBe` Left "SIMULATION NOT FOUND"
 
         it "should signal when attempting to update a simulation not started" $ do
             r <- runnerFor "CHRIS"
-            s <- updateSimulation r "CHRIS"
+            s <- action updateRoom r "CHRIS"
             s `shouldBe` Left "SIMULATION NOT RUNNING"
 
         it "should signal when attempting to set position to a negative number" $ do

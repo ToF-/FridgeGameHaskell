@@ -49,7 +49,7 @@ readEvalPrintLoop r id =
             ["QUIT"]  -> (False, putStrLn "QUITTING THE SIMULATION")
             ["START"] -> (True,  execute (action start r id))
             ["STOP"]  -> (True,  execute (action stop r id))
-            ["REINIT"]-> (True,  execute (reinitSimulation r id))
+            ["REINIT"]-> (True,  execute (action reinit r id))
             ["POS",n] -> (True,  execute (setPosSimulation n r id))
             []        -> (True,  return ())
             _       -> (True,  putStrLn ("UNKNWON COMMAND:" ++ e))
@@ -67,12 +67,12 @@ printReport r id =
 delay :: Delay
 delay = sDelay 5
 
-find r id = do s <- retrieve r id
+find r id = do s <- action retrieve r id
                return (fromRight s)
 
 tickSimulation :: Runner -> Id -> IO ()
 tickSimulation r id =
-    do updateSimulation r id
+    do action updateRoom r id
        printSimulation r id
 
 validateArgs :: [String] -> IO ()

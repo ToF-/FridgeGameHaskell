@@ -12,17 +12,11 @@ type Id = String
 newRunner :: IO Runner 
 newRunner = newMVar empty
 
-register :: Runner -> Id -> Simulation -> IO ()
+register :: Runner -> Id -> Simulation -> IO (Either String Simulation)
 register r id s = 
     do map <- takeMVar r
        putMVar r (insert id s map)
-
-retrieve :: Runner -> Id -> IO (Either String Simulation)
-retrieve r id =
-    do map <- readMVar r
-       return (case Map.lookup id map of
-                Just sim -> Right sim
-                Nothing  -> Left "SIMULATION NOT FOUND")
+       return $ Right s
 
 action :: (Simulation -> Either String Simulation) -> Runner -> Id -> IO (Either String Simulation)
 action a r id =
@@ -35,12 +29,6 @@ action a r id =
        putMVar r map'
        return result
   
-reinitSimulation :: Runner -> Id -> IO (Either String Simulation)
-reinitSimulation = action reinit
-
-updateSimulation :: Runner -> Id -> IO (Either String Simulation) 
-updateSimulation = action updateRoom
-
 isInteger :: String -> Bool
 isInteger s = case reads s :: [(Integer, String)] of
   [(_, "")] -> True
@@ -54,7 +42,7 @@ setPositionSimulation r id pos =
  
 getState :: Runner -> Id -> IO (Either String String)
 getState r id = 
-    do s <- retrieve r id
+    do s <- action retrieve r id
     
        case s of 
            Right sim -> return $ Right $ "{\"status\":"++ (show (show (status sim))) ++

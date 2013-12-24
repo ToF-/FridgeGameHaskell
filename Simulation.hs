@@ -36,3 +36,6 @@ stop s = Right s {status = Idle}
 
 reinit :: Simulation -> Either String Simulation
 reinit _ = Right newSimulation
+
+retrieve :: Simulation -> Either String Simulation
+retrieve s = Right s
