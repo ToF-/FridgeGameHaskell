@@ -92,7 +92,7 @@ main = hspec $ do
     describe "a simulation runner\n" $ do
 
         let runnerFor id = do r <- newRunner
-                              register r id newSimulation
+                              register r id
                               return r
 
         let find r id = do s <- action retrieve r id 
@@ -178,8 +178,8 @@ main = hspec $ do
 
         it "should update all simulations in a row" $ do
             r <- newRunner
-            register r "CHRIS" newSimulation
-            register r "TOF" newSimulation
+            register r "CHRIS"
+            register r "TOF"
             action start r "CHRIS"
             action start r "TOF"
             updateAllSimulations r

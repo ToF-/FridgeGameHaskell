@@ -87,7 +87,7 @@ main = do args <- getArgs
           let id = args !! 1
           printInstructions
           r <- newRunner
-          register r id newSimulation
+          register r id
           t <- newTimer
           repeatedStart t (tickSimulation r id) d
           readEvalPrintLoop r id

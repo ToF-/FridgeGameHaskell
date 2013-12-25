@@ -12,9 +12,10 @@ type Id = String
 newRunner :: IO Runner 
 newRunner = newMVar empty
 
-register :: Runner -> Id -> Simulation -> IO (Either String Simulation)
-register r id s = 
+register :: Runner -> Id -> IO (Either String Simulation)
+register r id = 
     do map <- takeMVar r
+       let s = newSimulation
        putMVar r (insert id s map)
        return $ Right s
 
