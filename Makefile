@@ -19,3 +19,8 @@ runner: SimpleSimulationRunner.hs
 
 console: TextSimulationRunner.hs RefrigeratedRoom.hs Simulation.hs Report.hs
 	$(C) $F TextSimulationRunner.hs -o bin/fridge
+
+
+clean:
+	rm *.hi
+	rm *.o

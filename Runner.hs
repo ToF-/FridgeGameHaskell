@@ -5,6 +5,7 @@ import Simulation
 import Data.HashMap as Map
 import Control.Concurrent
 import Data.Char
+import Safe (readMay)
 
 type Runner = MVar (Map Id Simulation)
 type Id = String
@@ -38,9 +39,9 @@ isInteger s = case reads s :: [(Integer, String)] of
 
 setPositionSimulation :: Runner -> Id -> String-> IO (Either String Simulation)
 setPositionSimulation r id pos = 
-    case isInteger pos of
-        True -> action (setPosition (read pos)) r id
-        False -> return $ Left $ "NOT AN INTEGER: " ++ pos
+    case readMay pos of
+        Just n  -> action (setPosition n) r id
+        Nothing -> return $ Left $ "NOT AN INTEGER: " ++ pos
  
 getState :: Runner -> Id -> IO (Either String String)
 getState r id = 
