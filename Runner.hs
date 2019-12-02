@@ -2,7 +2,7 @@ module Runner
 where
 import RefrigeratedRoom
 import Simulation
-import Data.HashMap as Map
+import Data.Map as Map
 import Control.Concurrent
 import Data.Char
 import Safe (readMay)
@@ -32,11 +32,6 @@ action a r id =
        putMVar r map'
        return result
   
-isInteger :: String -> Bool
-isInteger s = case reads s :: [(Integer, String)] of
-  [(_, "")] -> True
-  _         -> False
-
 setPositionSimulation :: Runner -> Id -> String-> IO (Either String Simulation)
 setPositionSimulation r id pos = 
     case readMay pos of
