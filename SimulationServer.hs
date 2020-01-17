@@ -51,7 +51,7 @@ setThePosition r = do
     id <- getIdParam
     param <- lookText "pos"
     let pos = read $ unpack param
-    result <- lift $ setPositionSimulation r id pos
+    result <- lift $ setPositionSimulation pos r id 
     let response = case result of
                     Right _ -> "OK"
                     Left msg -> msg

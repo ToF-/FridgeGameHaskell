@@ -1,9 +1,11 @@
+{-# LANGUAGE OverloadedStrings #-}
 import Test.Hspec
 import RefrigeratedRoom
 import Simulation
 import Report
 import Runner
 import Data.Maybe
+import Data.Aeson
 
 fromRight :: Either a b -> b
 fromRight (Right b) = b
@@ -126,7 +128,7 @@ main = hspec $ do
         it "should set the position of a simulation" $ do
             r <- runnerFor "CHRIS"
             action start r "CHRIS"
-            setPositionSimulation r "CHRIS" "50"
+            setPositionSimulation "50" r "CHRIS" 
             s <- find r "CHRIS"
             position (room s) `shouldBe` 50
              
@@ -151,25 +153,25 @@ main = hspec $ do
         it "should signal when attempting to set position to a negative number" $ do
             r <- runnerFor "CHRIS"
             action start r "CHRIS"
-            s <- setPositionSimulation r "CHRIS" "-1"
+            s <- setPositionSimulation "-1" r "CHRIS" 
             s `shouldBe` Left "POSITION SHOULD BE WITHIN RANGE [0..200]"
 
         it "should signal when attempting to set position to a number greater than 200" $ do
             r <- runnerFor "CHRIS"
             action start r "CHRIS"
-            s <- setPositionSimulation r "CHRIS" "201"
+            s <- setPositionSimulation "201" r "CHRIS" 
             s `shouldBe` Left "POSITION SHOULD BE WITHIN RANGE [0..200]"
 
         it "should signal when attempting to set position to a non integer value" $ do
             r <- runnerFor "CHRIS"
             action start r "CHRIS"
-            s <- setPositionSimulation r "CHRIS" "ERR"
+            s <- setPositionSimulation "ERR" r "CHRIS" 
             s `shouldBe` Left "NOT AN INTEGER: ERR"
 
         it "should communicate simulation information" $ do
             r <- runnerFor "CHRIS"
-            json <- getState r "CHRIS"
-            json `shouldBe` Right "{\"status\":\"Idle\",\"position\":100,\"temperature\":15.0}"
+            (Right json) <- getState r "CHRIS"
+            json `shouldBe` "{\"status\":\"Idle\",\"temperature\":15.0,\"position\":100}"
 
         it "should communicate an error if simulation unknown" $ do
             r <- runnerFor "CHRIS"

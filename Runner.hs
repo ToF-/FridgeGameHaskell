@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Runner
 where
 import RefrigeratedRoom
@@ -6,6 +7,13 @@ import Data.Map as Map
 import Control.Concurrent
 import Data.Char
 import Safe (readMay)
+import Data.Aeson
+import qualified Data.ByteString.Lazy as B
+
+instance ToJSON Simulation where
+    toJSON s = object ["status"   .= show (status s),
+                       "position" .= position (room s),
+                       "temperature" .= temperature (room s)]
 
 type Runner = MVar (Map Id Simulation)
 type Id = String
@@ -32,20 +40,18 @@ action a r id =
        putMVar r map'
        return result
   
-setPositionSimulation :: Runner -> Id -> String-> IO (Either String Simulation)
-setPositionSimulation r id pos = 
+setPositionSimulation :: String -> Runner -> Id -> IO (Either String Simulation)
+setPositionSimulation pos r id = 
     case readMay pos of
         Just n  -> action (setPosition n) r id
         Nothing -> return $ Left $ "NOT AN INTEGER: " ++ pos
  
-getState :: Runner -> Id -> IO (Either String String)
+getState :: Runner -> Id -> IO (Either String B.ByteString)
 getState r id = 
     do s <- action retrieve r id
     
        case s of 
-           Right sim -> return $ Right $ "{\"status\":"++ (show (show (status sim))) ++
-                                    ",\"position\":"++ (show (position (room sim))) ++ 
-                                    ",\"temperature\":" ++ (show (temperature (room sim))) ++ "}"
+           Right sim -> return $ Right $ encode sim
            Left msg -> return $ Left msg
 
 updateAllSimulations :: Runner -> IO ()
